@@ -1,11 +1,13 @@
 from datetime import datetime
 
-from bookings.models import Booking
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from rest_framework import filters, permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from bookings.models import Booking
 from .models import Room
 from .serializers import RoomSerializer
 
@@ -25,6 +27,15 @@ class RoomViewSet(viewsets.ModelViewSet):
     search_fields = ["name"]
     filterset_fields = ["capacity", "floor"]
 
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter('date', openapi.IN_QUERY, description="Date in YYYY-MM-DD", type=openapi.TYPE_STRING, required=False),
+            openapi.Parameter('start_time', openapi.IN_QUERY, description="Start time in HH:MM", type=openapi.TYPE_STRING, required=False),
+            openapi.Parameter('end_time', openapi.IN_QUERY, description="End time in HH:MM", type=openapi.TYPE_STRING, required=False),
+            openapi.Parameter('capacity', openapi.IN_QUERY, description="Room capacity", type=openapi.TYPE_INTEGER, required=False),
+            openapi.Parameter('floor', openapi.IN_QUERY, description="Room floor", type=openapi.TYPE_INTEGER, required=False),
+        ]
+    )
     @action(detail=False, methods=["get"], url_path="available")
     def available(self, request):
         date_str = request.query_params.get("date")
